@@ -1,7 +1,10 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Home, LogOut } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { GraduationCap, Home, LogOut, Bell, User } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface LayoutProps {
   children: ReactNode;
@@ -15,6 +18,15 @@ interface LayoutProps {
 
 const Layout = ({ children, portalType, navigation }: LayoutProps) => {
   const location = useLocation();
+  const { profile, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
 
   const getPortalTitle = () => {
     switch (portalType) {
@@ -67,9 +79,35 @@ const Layout = ({ children, portalType, navigation }: LayoutProps) => {
                 </Button>
               </Link>
               <Button variant="ghost" size="sm">
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
+                <Bell className="h-4 w-4" />
               </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="text-xs">
+                        {profile ? getInitials(profile.full_name) : 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end">
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      <p className="font-medium">{profile?.full_name}</p>
+                      <p className="w-[200px] truncate text-sm text-muted-foreground">
+                        {profile?.role} • {profile?.department}
+                      </p>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

@@ -3,9 +3,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/hooks/useAuth";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 // Main Pages
 import Index from "./pages/Index";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 // Student Portal
@@ -31,34 +34,85 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          
-          {/* Student Portal Routes */}
-          <Route path="/student" element={<StudentDashboard />} />
-          <Route path="/student/achievements" element={<StudentAchievements />} />
-          <Route path="/student/portfolio" element={<StudentPortfolio />} />
-          <Route path="/student/academics" element={<StudentAcademics />} />
-          <Route path="/student/settings" element={<StudentSettings />} />
-          <Route path="/student/support" element={<StudentSupport />} />
-          
-          {/* Faculty Portal Routes */}
-          <Route path="/faculty" element={<FacultyDashboard />} />
-          <Route path="/faculty/verify" element={<FacultyVerify />} />
-          <Route path="/faculty/students" element={<FacultyStudents />} />
-          
-          {/* Admin Portal Routes */}
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/reports" element={<AdminReports />} />
-          
-          {/* Catch-all route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            
+            {/* Student Portal Routes */}
+            <Route path="/student" element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/achievements" element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentAchievements />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/portfolio" element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentPortfolio />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/academics" element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentAcademics />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/settings" element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentSettings />
+              </ProtectedRoute>
+            } />
+            <Route path="/student/support" element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentSupport />
+              </ProtectedRoute>
+            } />
+            
+            {/* Faculty Portal Routes */}
+            <Route path="/faculty" element={
+              <ProtectedRoute allowedRoles={["faculty"]}>
+                <FacultyDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/faculty/verify" element={
+              <ProtectedRoute allowedRoles={["faculty"]}>
+                <FacultyVerify />
+              </ProtectedRoute>
+            } />
+            <Route path="/faculty/students" element={
+              <ProtectedRoute allowedRoles={["faculty"]}>
+                <FacultyStudents />
+              </ProtectedRoute>
+            } />
+            
+            {/* Admin Portal Routes */}
+            <Route path="/admin" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/users" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminUsers />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/reports" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminReports />
+              </ProtectedRoute>
+            } />
+            
+            {/* Catch-all route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

@@ -1,9 +1,39 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Users, Settings, BookOpen, CheckCircle, FileText } from "lucide-react";
+import { GraduationCap, Users, Settings, BookOpen, CheckCircle, FileText, LogIn } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
 
 const Index = () => {
+  const { user, profile, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user && profile && !loading) {
+      // Redirect authenticated users to their appropriate dashboard
+      switch (profile.role) {
+        case "admin":
+          navigate("/admin");
+          break;
+        case "faculty":
+          navigate("/faculty");
+          break;
+        case "student":
+          navigate("/student");
+          break;
+      }
+    }
+  }, [user, profile, loading, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-accent">
       <div className="container mx-auto px-4 py-12">
@@ -13,9 +43,19 @@ const Index = () => {
             <GraduationCap className="h-12 w-12 text-primary mr-3" />
             <h1 className="text-4xl font-bold text-foreground">AcadVault</h1>
           </div>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
             Your comprehensive academic achievement management platform
           </p>
+          {!user && (
+            <div className="flex justify-center">
+              <Link to="/auth">
+                <Button size="lg">
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Login / Sign Up
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Portal Cards */}
